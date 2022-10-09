@@ -4,6 +4,7 @@ import { AddressForm } from './AddressForm';
 import { useForm } from './useForm';
 import { UserForm } from './UserForm';
 import { useState } from 'react';
+import { send } from '@emailjs/browser';
 
 type FormData = {
   firstName: string;
@@ -31,15 +32,15 @@ const INITIAL_DATA: FormData = {
 
 function App() {
   const [data, setData] = useState(INITIAL_DATA)
-  function updateFields(fields: Partial<FormData>){
+  function updateFields(fields: Partial<FormData>) {
     setData(prev => {
-      return { ...prev, ...fields}
+      return { ...prev, ...fields }
     })
   }
-  const { step, steps, currentStepIndex, isFirstStep, isLastStep, back, next } = useForm([<UserForm {...data} updateFields={updateFields}/>, <AddressForm {...data} updateFields={updateFields}/>, <AccountForm {...data} updateFields={updateFields}/>]);
-  function onSubmitHandler (e: FormEvent) {
+  const { step, steps, currentStepIndex, isFirstStep, isLastStep, back, next } = useForm([<UserForm {...data} updateFields={updateFields} />, <AddressForm {...data} updateFields={updateFields} />, <AccountForm {...data} updateFields={updateFields} />]);
+  function onSubmitHandler(e: FormEvent) {
     e.preventDefault()
-    !isLastStep ? next() : alert('Successfully finished form')
+    !isLastStep ? next() : send(import.meta.env.EMAILJS_SERVICE_ID, import.meta.env.EMAILJS_TEMPLATE_ID, data, import.meta.env.EMAILJS_PUBLIC_KEY).then(res => { alert("Email successfully sent! " + res.status + ' ' + res.text) }, err => { "Failed :( " + err })
   }
   return (
     <div style={{ position: 'relative', background: 'white', border: '1px solid black', padding: '2rem', margin: '1rem', borderRadius: '.5rem', fontFamily: 'Arial', maxWidth: 'max-content' }}>
